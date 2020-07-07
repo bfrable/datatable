@@ -1,0 +1,9 @@
+{
+  "extends": ["tslint:recommended"],
+  "rules": {
+    "no-implicit-dependencies": [false, "dev"],
+    "no-any": false,
+    "typedef": true,
+    "no-floating-promises": false
+  }
+}

@@ -1,0 +1,121 @@
+import { Component } from '@angular/core';
+import { ColumnMode, SelectionType } from 'projects/ucrsdtnet-datatable/src/public-api';
+
+@Component({
+  selector: 'chkbox-selection-template-demo',
+  template: `
+    <div>
+      <h3>
+        Custom Checkbox Selection
+        <small>
+          <a href="javascript:void(0)" (click)="add()">Add</a> |
+          <a href="javascript:void(0)" (click)="update()">Update</a> |
+          <a href="javascript:void(0)" (click)="remove()">Remove</a>
+        </small>
+      </h3>
+      <div style="float:left;width:75%">
+        <ucrsdtnet-datatable
+          style="width: 90%"
+          class="material"
+          [rows]="rows"
+          [columnMode]="ColumnMode.force"
+          [headerHeight]="50"
+          [footerHeight]="50"
+          rowHeight="auto"
+          [limit]="5"
+          [selected]="selected"
+          [selectionType]="SelectionType.checkbox"
+          (activate)="onActivate($event)"
+          (select)="onSelect($event)"
+        >
+          <ucrsdtnet-datatable-column
+            [width]="30"
+            [sortable]="false"
+            [canAutoResize]="false"
+            [draggable]="false"
+            [resizeable]="false"
+          >
+            <ng-template
+              ucrsdtnet-datatable-header-template
+              let-value="value"
+              let-allRowsSelected="allRowsSelected"
+              let-selectFn="selectFn"
+            >
+              <input type="checkbox" [checked]="allRowsSelected" (change)="selectFn(!allRowsSelected)" />
+            </ng-template>
+            <ng-template
+              ucrsdtnet-datatable-cell-template
+              let-value="value"
+              let-isSelected="isSelected"
+              let-onCheckboxChangeFn="onCheckboxChangeFn"
+            >
+              <input type="checkbox" [checked]="isSelected" (change)="onCheckboxChangeFn($event)" />
+            </ng-template>
+          </ucrsdtnet-datatable-column>
+          <ucrsdtnet-datatable-column name="Name"></ucrsdtnet-datatable-column>
+          <ucrsdtnet-datatable-column name="Gender"></ucrsdtnet-datatable-column>
+          <ucrsdtnet-datatable-column name="Company"></ucrsdtnet-datatable-column>
+        </ucrsdtnet-datatable>
+      </div>
+
+      <div class="selected-column">
+        <h4>
+          Selections <small>({{ selected?.length }})</small>
+        </h4>
+        <ul>
+          <li *ngFor="let sel of selected">
+            {{ sel.name }}
+          </li>
+          <li *ngIf="!selected?.length">No Selections</li>
+        </ul>
+      </div>
+    </div>
+  `
+})
+export class CustomCheckboxSelectionComponent {
+  rows = [];
+  selected = [];
+
+  ColumnMode = ColumnMode;
+  SelectionType = SelectionType;
+
+  constructor() {
+    this.fetch(data => {
+      this.rows = data;
+    });
+  }
+
+  fetch(cb) {
+    const req = new XMLHttpRequest();
+    req.open('GET', `assets/data/company.json`);
+
+    req.onload = () => {
+      cb(JSON.parse(req.response));
+    };
+
+    req.send();
+  }
+
+  onSelect({ selected }) {
+    console.log('Select Event', selected, this.selected);
+
+    this.selected.splice(0, this.selected.length);
+    this.selected.push(...selected);
+  }
+
+  onActivate(event) {
+    console.log('Activate Event', event);
+  }
+
+  add() {
+    this.selected.push(this.rows[1], this.rows[3]);
+  }
+
+  update() {
+    this.selected = [this.rows[1], this.rows[3]];
+  }
+
+  remove() {
+    this.selected = [];
+  }
+}
